@@ -1,13 +1,13 @@
+
 .PHONY: install fmt lint test build dev
 
 install:
 	cd backend && go mod tidy
 
 fmt:
-	cd backend && gofmt -w ./cmd ./internal
+	cd backend && gofmt -w .
 
-lint:
-	cd backend && test -z "$$(gofmt -l ./cmd ./internal)"
+lint: fmt
 	cd backend && go vet ./...
 
 test:
@@ -17,5 +17,5 @@ build:
 	mkdir -p backend/bin
 	cd backend && go build -o ./bin/labelclaw ./cmd/labelclaw
 
-dev:
-	cd backend && go run ./cmd/labelclaw
+dev: build
+	cd backend && ./bin/labelclaw

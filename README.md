@@ -15,7 +15,7 @@ LabelClaw is a full-stack dataset labeling application with a Go backend and a R
 - `docs/spec.md`: product behavior and feature scope
 - `backend/`: REST API, persistence, LLM integration, static asset serving
 - `frontend/`: SPA, UI runtime for generated panels, unit/e2e tests
-- `Makefile`: common entrypoint for install, lint, test, type-check, build, and dev tasks
+- `Makefile`: common entrypoint for install, lint, test, build, and dev tasks
 
 ## Quick Start
 
