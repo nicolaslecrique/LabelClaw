@@ -4,7 +4,7 @@ LabelClaw is a full-stack dataset labeling application with a Go backend and a R
 
 ## Stack
 
-- Go 1.24.x
+- Go 1.26.x
 - Node.js 22.x
 - pnpm 10.x
 - React 19 + Vite + TypeScript

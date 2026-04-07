@@ -9,7 +9,7 @@ These instructions apply to the whole repository.
 
 ## Coding Style
 
-- Prefer the most standard, well-supported solution for the current ecosystem and year.
+- Prefer the most standard, well-supported solution for the current ecosystem and year. Respect the "standard" rule for folders organization, dependencies, tools... 
 - Keep implementations simple: follow KISS and YAGNI.
 - Preserve separation of concerns, strong cohesion, and low coupling.
 - Prefer pure functions, explicit data flow, immutability, and precise types when practical.
