@@ -1,0 +1,21 @@
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "live"
+
+[sandbox_workspace_write]
+network_access = false
+writable_roots = ["/home/nicolas/dev/labelclaw"]
+exclude_slash_tmp = true
+exclude_tmpdir_env_var = true
+
+[shell_environment_policy]
+inherit = "core"
+experimental_use_profile = false
+exclude = [
+  "*PASSWORD*",
+  "*COOKIE*",
+  "*SESSION*",
+  "AWS_*",
+  "GITHUB_*",
+  "SSH_AUTH_SOCK",
+]

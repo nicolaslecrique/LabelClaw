@@ -1,0 +1,5 @@
+prefix_rule(
+    pattern = ["make"],
+    decision = "allow",
+    justification = "Trust this repository's Makefile entrypoints while keeping sandbox restrictions enabled."
+)
