@@ -11,20 +11,16 @@ import (
 	"time"
 
 	"github.com/nicolaslecrique/LabelClaw/backend/internal/api"
-	"github.com/nicolaslecrique/LabelClaw/backend/internal/config"
-	"github.com/nicolaslecrique/LabelClaw/backend/internal/configuration"
 	"github.com/nicolaslecrique/LabelClaw/backend/internal/storage"
 )
 
 func main() {
-	cfg := config.Load()
-
-	store := storage.NewFileStore(cfg.ConfigurationPath)
-	service := configuration.NewService(store)
+	addr := getenv("LABELCLAW_ADDR", "127.0.0.1:8080")
+	configPath := getenv("LABELCLAW_CONFIG_PATH", "data/active-config.json")
 
 	server := &http.Server{
-		Addr:              cfg.Addr,
-		Handler:           api.NewHandler(service),
+		Addr:              addr,
+		Handler:           api.NewHandler(storage.NewFileStore(configPath)),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
@@ -42,9 +38,18 @@ func main() {
 		}
 	}()
 
-	log.Printf("labelclaw backend listening on %s", cfg.Addr)
+	log.Printf("labelclaw backend listening on %s", addr)
 
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("server failed: %v", err)
 	}
+}
+
+func getenv(key string, fallback string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return fallback
+	}
+
+	return value
 }

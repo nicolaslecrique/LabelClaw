@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"path/filepath"
@@ -16,7 +15,7 @@ func TestFileStoreLoadReturnsNotFoundWhenFileDoesNotExist(t *testing.T) {
 
 	store := NewFileStore(filepath.Join(t.TempDir(), "active-config.json"))
 
-	_, err := store.Load(context.Background())
+	_, err := store.Load()
 	if !errors.Is(err, ErrNotFound) {
 		t.Fatalf("expected ErrNotFound, got %v", err)
 	}
@@ -33,11 +32,11 @@ func TestFileStoreSaveAndLoadRoundTrip(t *testing.T) {
 		ComponentCode:    "export function Panel() { return null; }",
 	}
 
-	if err := store.Save(context.Background(), expected); err != nil {
+	if err := store.Save(expected); err != nil {
 		t.Fatalf("save failed: %v", err)
 	}
 
-	actual, err := store.Load(context.Background())
+	actual, err := store.Load()
 	if err != nil {
 		t.Fatalf("load failed: %v", err)
 	}

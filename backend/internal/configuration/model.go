@@ -3,6 +3,7 @@ package configuration
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -20,36 +21,7 @@ type GenerateRequest struct {
 	UIPrompt         string          `json:"uiPrompt"`
 }
 
-type ValidationError struct {
-	message string
-}
-
-func (e ValidationError) Error() string {
-	return e.message
-}
-
-func IsValidationError(err error) bool {
-	var validationError ValidationError
-
-	return err != nil && AsValidationError(err, &validationError)
-}
-
-func AsValidationError(err error, target *ValidationError) bool {
-	if err == nil {
-		return false
-	}
-
-	validationError, ok := err.(ValidationError)
-	if !ok {
-		return false
-	}
-
-	if target != nil {
-		*target = validationError
-	}
-
-	return true
-}
+var ErrGenerateNotImplemented = errors.New("configuration generation is not implemented yet")
 
 func (c ActiveConfiguration) Validate() error {
 	if err := validateSchema("sampleJsonSchema", c.SampleJSONSchema); err != nil {
@@ -89,16 +61,16 @@ func (r GenerateRequest) Validate() error {
 
 func validateSchema(field string, value json.RawMessage) error {
 	if len(bytes.TrimSpace(value)) == 0 {
-		return ValidationError{message: fmt.Sprintf("%s is required", field)}
+		return fmt.Errorf("%s is required", field)
 	}
 
 	var decoded any
 	if err := json.Unmarshal(value, &decoded); err != nil {
-		return ValidationError{message: fmt.Sprintf("%s must be valid JSON: %v", field, err)}
+		return fmt.Errorf("%s must be valid JSON: %w", field, err)
 	}
 
 	if _, ok := decoded.(map[string]any); !ok {
-		return ValidationError{message: fmt.Sprintf("%s must be a JSON object", field)}
+		return fmt.Errorf("%s must be a JSON object", field)
 	}
 
 	return nil
@@ -106,7 +78,7 @@ func validateSchema(field string, value json.RawMessage) error {
 
 func validateRequired(field string, value string) error {
 	if strings.TrimSpace(value) == "" {
-		return ValidationError{message: fmt.Sprintf("%s is required", field)}
+		return fmt.Errorf("%s is required", field)
 	}
 
 	return nil

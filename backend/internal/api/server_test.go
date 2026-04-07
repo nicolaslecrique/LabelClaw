@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/nicolaslecrique/LabelClaw/backend/internal/configuration"
@@ -95,13 +96,8 @@ func TestPutCurrentConfigurationPersistsConfiguration(t *testing.T) {
 		t.Fatalf("decode failed: %v", err)
 	}
 
-	if string(saved.SampleJSONSchema) != string(current.SampleJSONSchema) {
-		t.Fatalf("unexpected sample schema: got %s want %s", saved.SampleJSONSchema, current.SampleJSONSchema)
-	}
-
-	if string(saved.LabelJSONSchema) != string(current.LabelJSONSchema) {
-		t.Fatalf("unexpected label schema: got %s want %s", saved.LabelJSONSchema, current.LabelJSONSchema)
-	}
+	assertJSONEqual(t, saved.SampleJSONSchema, current.SampleJSONSchema)
+	assertJSONEqual(t, saved.LabelJSONSchema, current.LabelJSONSchema)
 
 	if saved.UIPrompt != current.UIPrompt {
 		t.Fatalf("unexpected ui prompt: got %q want %q", saved.UIPrompt, current.UIPrompt)
@@ -144,7 +140,24 @@ func newTestHandler(t *testing.T) http.Handler {
 	t.Helper()
 
 	store := storage.NewFileStore(filepath.Join(t.TempDir(), "active-config.json"))
-	service := configuration.NewService(store)
 
-	return NewHandler(service)
+	return NewHandler(store)
+}
+
+func assertJSONEqual(t *testing.T, actual json.RawMessage, expected json.RawMessage) {
+	t.Helper()
+
+	var actualValue any
+	if err := json.Unmarshal(actual, &actualValue); err != nil {
+		t.Fatalf("failed to unmarshal actual JSON: %v", err)
+	}
+
+	var expectedValue any
+	if err := json.Unmarshal(expected, &expectedValue); err != nil {
+		t.Fatalf("failed to unmarshal expected JSON: %v", err)
+	}
+
+	if !reflect.DeepEqual(actualValue, expectedValue) {
+		t.Fatalf("unexpected JSON value: got %s want %s", actual, expected)
+	}
 }

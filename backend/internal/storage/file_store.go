@@ -1,12 +1,10 @@
 package storage
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
-	"sync"
 
 	"github.com/nicolaslecrique/LabelClaw/backend/internal/configuration"
 )
@@ -15,23 +13,13 @@ var ErrNotFound = errors.New("active configuration not found")
 
 type FileStore struct {
 	path string
-	mu   sync.RWMutex
 }
 
 func NewFileStore(path string) *FileStore {
 	return &FileStore{path: path}
 }
 
-func (s *FileStore) Load(ctx context.Context) (configuration.ActiveConfiguration, error) {
-	select {
-	case <-ctx.Done():
-		return configuration.ActiveConfiguration{}, ctx.Err()
-	default:
-	}
-
-	s.mu.RLock()
-	defer s.mu.RUnlock()
-
+func (s *FileStore) Load() (configuration.ActiveConfiguration, error) {
 	data, err := os.ReadFile(s.path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -49,16 +37,7 @@ func (s *FileStore) Load(ctx context.Context) (configuration.ActiveConfiguration
 	return current, nil
 }
 
-func (s *FileStore) Save(ctx context.Context, current configuration.ActiveConfiguration) error {
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-	}
-
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
+func (s *FileStore) Save(current configuration.ActiveConfiguration) error {
 	if err := os.MkdirAll(filepath.Dir(s.path), 0o755); err != nil {
 		return err
 	}
